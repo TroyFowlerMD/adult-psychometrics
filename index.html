@@ -225,6 +225,19 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
 
 </div>
 
+<!-- ── Send Questionnaire Card ── -->
+<div class="send-card" id="sendCard" style="max-width:660px;margin:0 auto 28px;box-sizing:border-box;padding-left:max(1.25rem,env(safe-area-inset-left));padding-right:max(1.25rem,env(safe-area-inset-right));">
+  <div class="send-card-icon">✉️</div>
+  <div class="send-card-body">
+    <div class="send-card-title" id="sendCardTitle">Send a Questionnaire</div>
+    <div class="send-card-desc" id="sendCardDesc">Generate a link to share by email, text, or any channel. The recipient completes the questionnaire on their device and copies the results back to you.</div>
+    <button class="send-card-btn" onclick="openSendModal()">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,12 2,6"/></svg>
+      <span id="sendCardBtnLabel">Send Questionnaire</span>
+    </button>
+  </div>
+</div>
+
 <div class="footer">
   <a href="https://troyfowlermd.github.io" target="_blank" rel="noopener">troyfowlermd.github.io</a> &nbsp;·&nbsp;
   <a href="https://www.perplexity.ai/computer" target="_blank" rel="noopener">Created with Perplexity Computer</a>

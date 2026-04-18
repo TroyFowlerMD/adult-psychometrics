@@ -1550,12 +1550,14 @@ function _scrollToTop(el) {
 function _isFullyVisible(el) {
   var r = el.getBoundingClientRect();
   var tbH = _tbH();
-  return r.top >= tbH && r.top < window.innerHeight;
+  // Only suppress scroll if the ENTIRE question is clearly visible on screen
+  return r.top >= tbH && r.bottom <= window.innerHeight;
 }
 function onAnswerSelected(qNum, idx) {
   _answeredQNums.add(qNum);
   updateScore();
   generateNote();
+  generateDetailedNote();
 
   var allSections = Array.from(document.querySelectorAll('.question-section'));
   var allAnswered = allSections.every(function(s) {
