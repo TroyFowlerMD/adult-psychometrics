@@ -167,19 +167,7 @@ body{font-family:var(--font);background:var(--bg);color:var(--text);min-height:1
           <span class="pill">Max: 27</span>
         </div>
       </a>
-      <a class="tool-card" data-cat="depression" href="phqa.html">
-        <div class="card-top">
-          <span class="card-abbr">PHQ-A</span>
-          <span class="card-age">12–17</span>
-        </div>
-        <div class="card-name" data-en="Patient Health Questionnaire — Adolescent" data-es="Cuestionario de Salud del Paciente — Adolescente">Patient Health Questionnaire — Adolescent</div>
-        <div class="card-desc" data-en="Adolescent version of the PHQ-9. Validated for ages 12–17 in primary care settings." data-es="Versión adolescente del PHQ-9. Validado para edades 12–17 en atención primaria.">Adolescent version of the PHQ-9. Validated for ages 12–17 in primary care settings.</div>
-        <div class="card-footer">
-          <span class="pill">9 items</span>
-          <span class="pill" data-en="Cutoff: ≥10" data-es="Corte: ≥10">Cutoff: ≥10</span>
-          <span class="pill">Max: 27</span>
-        </div>
-      </a>
+      
     </div>
   </div>
 
@@ -274,7 +262,6 @@ function toggleTheme() {
 })();
 </script>
 
-
 <!-- ── Feedback Card ── -->
 <div class="feedback-box">
   <h2 id="feedback-heading">Suggestions &amp; Feedback</h2>
@@ -288,7 +275,6 @@ function toggleTheme() {
   </form>
   <div class="feedback-success" id="feedbackSuccess"></div>
 </div>
-
 
 <script>
 // ── Feedback Card ──
@@ -383,7 +369,6 @@ function submitFeedback(e) {
 }
 </script>
 
-
 <!-- ── Send Modal ── -->
 <div class="send-modal-backdrop" id="sendModalBackdrop" onclick="closeSendModalOutside(event)">
   <div class="send-modal" role="dialog" aria-modal="true">
@@ -396,7 +381,6 @@ function submitFeedback(e) {
       <select class="send-select" id="sendQSelect" onchange="updateSendMsg()">
         <optgroup label="Depression / Depresión" data-en-label="Depression" data-es-label="Depresión">
           <option value="phq9.html" data-en="PHQ-9 (Depression ≥18)" data-es="PHQ-9 (Depresión ≥18)">PHQ-9 (Depression ≥18)</option>
-          <option value="phqa.html" data-en="PHQ-A (Depression 12–17)" data-es="PHQ-A (Depresión 12–17)">PHQ-A (Depression 12–17)</option>
         </optgroup>
         <optgroup label="Anxiety / Ansiedad" data-en-label="Anxiety" data-es-label="Ansiedad">
           <option value="gad7.html" data-en="GAD-7 (Anxiety ≥18)" data-es="GAD-7 (Ansiedad ≥18)">GAD-7 (Anxiety ≥18)</option>
@@ -439,7 +423,6 @@ function submitFeedback(e) {
     </div>
   </div>
 </div>
-
 
 <script>
 // ── Send Modal ──────────────────────────────────────────────
