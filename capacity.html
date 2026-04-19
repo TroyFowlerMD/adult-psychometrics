@@ -425,15 +425,44 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
 /* AMA topbar button */
 .ama-btn {
   font-size: var(--text-sm); font-weight: 700; padding: 5px 12px;
-  border: 2px solid var(--color-warning); border-radius: var(--radius-full);
-  color: var(--color-warning); transition: all var(--transition);
-  background: transparent; white-space: nowrap;
+  border: 2px solid var(--color-border); border-radius: var(--radius-full);
+  color: var(--color-text-muted); transition: all var(--transition);
+  background: var(--color-surface-2); white-space: nowrap;
 }
-.ama-btn:hover { background: var(--color-warning-bg); }
-.ama-btn.active { background: var(--color-warning-bg); }
+.ama-btn:hover { border-color: var(--color-warning); color: var(--color-warning); }
+.ama-btn.active {
+  border-color: var(--color-warning); background: var(--color-warning-bg);
+  color: var(--color-warning);
+}
 /* Hidden substance sections */
 .subst-section { display: none; }
 .subst-section.visible { display: block; }
+/* Substance color accents */
+:root {
+  --subst-alc:   #4f8ed4;
+  --subst-opi:   #d46b6b;
+  --subst-benzo: #9b7fd4;
+  --subst-stim:  #d4944f;
+  --subst-other: var(--color-primary);
+}
+.subst-section.visible .ama-section { border-left: 3px solid var(--subst-color, var(--color-border)); padding-left: var(--space-4); }
+#sect-alc.visible .ama-section   { --subst-color: var(--subst-alc); }
+#sect-opi.visible .ama-section   { --subst-color: var(--subst-opi); }
+#sect-benzo.visible .ama-section { --subst-color: var(--subst-benzo); }
+#sect-stim.visible .ama-section  { --subst-color: var(--subst-stim); }
+#sect-other.visible .ama-section { --subst-color: var(--subst-other); }
+/* Section label inherits accent color */
+#sect-alc   .ama-section-label { color: var(--subst-alc); }
+#sect-opi   .ama-section-label { color: var(--subst-opi); }
+#sect-benzo .ama-section-label { color: var(--subst-benzo); }
+#sect-stim  .ama-section-label { color: var(--subst-stim); }
+#sect-other .ama-section-label { color: var(--subst-other); }
+/* Substance toggle buttons — colored when active */
+#substAlc.active    { border-color: var(--subst-alc)!important;   background: rgba(79,142,212,.15)!important;  color: var(--subst-alc)!important; }
+#substOpi.active    { border-color: var(--subst-opi)!important;   background: rgba(212,107,107,.15)!important; color: var(--subst-opi)!important; }
+#substBenzo.active  { border-color: var(--subst-benzo)!important; background: rgba(155,127,212,.15)!important; color: var(--subst-benzo)!important; }
+#substStim.active   { border-color: var(--subst-stim)!important;  background: rgba(212,148,79,.15)!important;  color: var(--subst-stim)!important; }
+#substOther.active  { border-color: var(--color-primary)!important; background: rgba(79,152,163,.15)!important; color: var(--color-primary)!important; }
 /* Print: include AMA panel */
 /* ===================== PRINT ===================== */
 @media print {
@@ -552,7 +581,6 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
             <div class="check-item" onclick="toggleCheck(this,'alc-risk-dt')"><input type="checkbox" id="alc-risk-dt"><label for="alc-risk-dt">Risk of delirium tremens (DTs)</label></div>
             <div class="check-item" onclick="toggleCheck(this,'alc-risk-wernicke')"><input type="checkbox" id="alc-risk-wernicke"><label for="alc-risk-wernicke">Risk of Wernicke's encephalopathy</label></div>
             <div class="check-item" onclick="toggleCheck(this,'alc-risk-death')"><input type="checkbox" id="alc-risk-death"><label for="alc-risk-death">Risk of death from untreated withdrawal</label></div>
-            <div class="check-item" onclick="toggleCheck(this,'alc-risk-relapse')"><input type="checkbox" id="alc-risk-relapse"><label for="alc-risk-relapse">Risk of relapse to alcohol use</label></div>
             <div class="check-subhead">Patient History</div>
             <div class="check-item" onclick="toggleCheck(this,'alc-hx-seizure')"><input type="checkbox" id="alc-hx-seizure"><label for="alc-hx-seizure">Prior withdrawal seizure</label></div>
             <div class="check-item" onclick="toggleCheck(this,'alc-hx-dt')"><input type="checkbox" id="alc-hx-dt"><label for="alc-hx-dt">Prior delirium tremens</label></div>
@@ -586,7 +614,6 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
           <div class="check-grid">
             <div class="check-subhead">Counseled — Withdrawal &amp; Relapse Risks</div>
             <div class="check-item" onclick="toggleCheck(this,'opi-risk-worsen')"><input type="checkbox" id="opi-risk-worsen"><label for="opi-risk-worsen">Symptoms expected to worsen after leaving</label></div>
-            <div class="check-item" onclick="toggleCheck(this,'opi-risk-relapse')"><input type="checkbox" id="opi-risk-relapse"><label for="opi-risk-relapse">High risk of relapse upon discharge</label></div>
             <div class="check-item" onclick="toggleCheck(this,'opi-risk-tolerance')"><input type="checkbox" id="opi-risk-tolerance"><label for="opi-risk-tolerance">Loss of tolerance increases overdose risk</label></div>
             <div class="check-item" onclick="toggleCheck(this,'opi-risk-fentanyl')"><input type="checkbox" id="opi-risk-fentanyl"><label for="opi-risk-fentanyl">Fentanyl exposure risk in local supply</label></div>
             <div class="check-item" onclick="toggleCheck(this,'opi-risk-od-death')"><input type="checkbox" id="opi-risk-od-death"><label for="opi-risk-od-death">Risk of overdose death</label></div>
@@ -643,7 +670,6 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
           <div class="ama-section-label">Stimulants (Methamphetamine / Cocaine)</div>
           <div class="check-grid">
             <div class="check-subhead">Counseled — Risks</div>
-            <div class="check-item" onclick="toggleCheck(this,'stim-risk-relapse')"><input type="checkbox" id="stim-risk-relapse"><label for="stim-risk-relapse">High risk of relapse upon discharge</label></div>
             <div class="check-item" onclick="toggleCheck(this,'stim-risk-psych')"><input type="checkbox" id="stim-risk-psych"><label for="stim-risk-psych">Risk of psychiatric decompensation</label></div>
             <div class="check-item" onclick="toggleCheck(this,'stim-risk-psychosis')"><input type="checkbox" id="stim-risk-psychosis"><label for="stim-risk-psychosis">Risk of stimulant-induced psychosis</label></div>
             <div class="check-item" onclick="toggleCheck(this,'stim-risk-environment')"><input type="checkbox" id="stim-risk-environment"><label for="stim-risk-environment">Return to high-risk use environment</label></div>
@@ -668,7 +694,6 @@ button { cursor: pointer; background: none; border: none; font: inherit; color: 
           </div>
           <div class="check-grid">
             <div class="check-subhead">Counseled — Risks</div>
-            <div class="check-item" onclick="toggleCheck(this,'other-risk-relapse')"><input type="checkbox" id="other-risk-relapse"><label for="other-risk-relapse">Risk of relapse upon discharge</label></div>
             <div class="check-item" onclick="toggleCheck(this,'other-risk-incomplete')"><input type="checkbox" id="other-risk-incomplete"><label for="other-risk-incomplete">Incomplete treatment at time of AMA</label></div>
             <div class="check-item" onclick="toggleCheck(this,'other-risk-environment')"><input type="checkbox" id="other-risk-environment"><label for="other-risk-environment">Return to high-risk use environment</label></div>
           </div>
@@ -1389,6 +1414,19 @@ function setFacility(type) {
       if (item) item.style.display = (type === 'detox') ? '' : 'none';
     });
   });
+  // Auto-check "symptoms expected to worsen" for active substances when switching to detox
+  if (type === 'detox') {
+    ['alc','opi','benzo'].forEach(function(s) {
+      if (AMA_SUBSTS[s]) autoCheckItem(s + '-risk-worsen');
+    });
+  } else {
+    // Uncheck worsen boxes when switching to rehab
+    ['alc','opi','benzo'].forEach(function(s) {
+      var cb = document.getElementById(s + '-risk-worsen');
+      var item = cb ? cb.closest('.check-item') : null;
+      if (cb && item) { cb.checked = false; item.classList.remove('checked'); }
+    });
+  }
   generateNote();
 }
 
@@ -1400,6 +1438,8 @@ function toggleSubst(s) {
   // Show general section if any substance selected
   var anySelected = Object.values(AMA_SUBSTS).some(Boolean);
   document.getElementById('sect-general').style.display = anySelected ? 'block' : 'none';
+  // Auto-check "risks explained verbally" whenever general section is shown
+  if (anySelected) autoCheckItem('gen-risks-verbal');
   generateNote();
 }
 
@@ -1421,6 +1461,15 @@ function toggleCheck(item, id) {
   cb.checked = !cb.checked;
   item.classList.toggle('checked', cb.checked);
   generateNote();
+}
+
+function autoCheckItem(id) {
+  var cb = document.getElementById(id);
+  if (!cb) return;
+  var item = cb.closest('.check-item');
+  if (!item) return;
+  cb.checked = true;
+  item.classList.add('checked');
 }
 
 function getChecked(id) {
@@ -1466,7 +1515,6 @@ function buildAMASection() {
       'alc-risk-dt':          'Counseled: risk of delirium tremens',
       'alc-risk-wernicke':    'Counseled: risk of Wernicke\'s encephalopathy',
       'alc-risk-death':       'Counseled: risk of death from untreated withdrawal',
-      'alc-risk-relapse':     'Counseled: risk of relapse to alcohol use',
       'alc-hx-seizure':       'History: prior withdrawal seizure',
       'alc-hx-dt':            'History: prior delirium tremens',
       'alc-hx-complicated':   'History: prior complicated detox',
@@ -1477,7 +1525,6 @@ function buildAMASection() {
       'alc-sx-agitation':     'Current: psychomotor agitation',
       // Opioid risks
       'opi-risk-worsen':      'Counseled: withdrawal symptoms expected to worsen after leaving',
-      'opi-risk-relapse':     'Counseled: high risk of relapse upon discharge',
       'opi-risk-tolerance':   'Counseled: loss of tolerance increases overdose risk',
       'opi-risk-fentanyl':    'Counseled: fentanyl exposure risk in local drug supply',
       'opi-risk-od-death':    'Counseled: risk of overdose death',
@@ -1503,7 +1550,6 @@ function buildAMASection() {
       'benzo-sx-anxiety':     'Current: marked anxiety/autonomic arousal',
       'benzo-sx-confusion':   'Current: confusion/disorientation noted — may affect capacity assessment',
       // Stimulant risks
-      'stim-risk-relapse':    'Counseled: high risk of relapse upon discharge',
       'stim-risk-psych':      'Counseled: risk of psychiatric decompensation',
       'stim-risk-psychosis':  'Counseled: risk of stimulant-induced psychosis',
       'stim-risk-environment':'Counseled: return to high-risk use environment',
@@ -1514,10 +1560,19 @@ function buildAMASection() {
       'stim-sx-dysphoria':    'Current: marked dysphoria/crash state',
       'stim-sx-impulsive':    'Current: impulsive decision-making observed',
       // Other
-      'other-risk-relapse':   'Counseled: risk of relapse upon discharge',
       'other-risk-incomplete':'Counseled: treatment incomplete at time of AMA',
       'other-risk-environment':'Counseled: return to high-risk use environment',
     };
+
+    // Always include relapse risk counseling (baseline standard of care — no checkbox needed)
+    var relapseBySubst = {
+      alc:   '• Counseled: risk of relapse to alcohol use',
+      opi:   '• Counseled: high risk of relapse and loss of tolerance upon discharge',
+      benzo: '• Counseled: risk of relapse to benzodiazepine use',
+      stim:  '• Counseled: high risk of relapse upon discharge',
+      other: '• Counseled: risk of relapse upon discharge'
+    };
+    if (relapseBySubst[key]) lines.push(relapseBySubst[key]);
 
     var prefix = { alc:'alc-', opi:'opi-', benzo:'benzo-', stim:'stim-', other:'other-' }[key];
     var relevant = Object.keys(FIELD_LABELS).filter(function(k){ return k.startsWith(prefix); });
