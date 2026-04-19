@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Decisional Capacity Assessment</title>
+  <style>
+/* ===================== DESIGN TOKENS ===================== */
+:root {
+  --text-xs: clamp(0.75rem, 0.7rem + 0.25vw, 0.875rem);
+  --text-sm: clamp(0.875rem, 0.8rem + 0.35vw, 1rem);
+  --text-base: clamp(1rem, 0.95rem + 0.25vw, 1.125rem);
+  --text-lg: clamp(1.125rem, 1rem + 0.75vw, 1.5rem);
+  --text-xl: clamp(1.5rem, 1.2rem + 1.25vw, 2.25rem);
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+  --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+  --space-8: 2rem; --space-10: 2.5rem;
+  --radius-sm: 0.375rem; --radius-md: 0.5rem;
+  --radius-lg: 0.75rem; --radius-xl: 1rem; --radius-full: 9999px;
+  --transition: 180ms cubic-bezier(0.16,1,0.3,1);
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+}
+[data-theme='dark'], :root {
+  --color-bg: #171614;
+  --color-surface: #1c1b19;
+  --color-surface-2: #201f1d;
+  --color-surface-offset: #252422;
+  --color-border: #393836;
+  --color-text: #cdccca;
+  --color-text-muted: #797876;
+  --color-text-faint: #5a5957;
+  --color-primary: #4f98a3;
+  --color-primary-hover: #227f8b;
+  --color-primary-bg: #1e2d2d;
+  --color-primary-highlight: #313b3b;
+  --color-success: #6daa45;
+  --color-success-bg: #1e2a18;
+  --color-success-highlight: #3a4435;
+  --color-warning: #bb653b;
+  --color-warning-bg: #2a1e16;
+  --color-warning-highlight: #564942;
+  --color-error: #d163a7;
+  --color-error-bg: #2a1520;
+  --color-error-highlight: #4c3d46;
+  --shadow-md: 0 4px 12px oklch(0 0 0 / 0.3);
+}
+[data-theme='light'] {
+  --color-bg: #f7f6f2; --color-surface: #f9f8f5;
+  --color-surface-2: #fbfbf9; --color-surface-offset: #f0eeea;
+  --color-border: #d4d1ca; --color-text: #28251d;
+  --color-text-muted: #7a7974; --color-text-faint: #bab9b4;
+  --color-primary: #01696f; --color-primary-hover: #0c4e54;
+  --color-primary-bg: #e8f2f1; --color-primary-highlight: #cedcd8;
+  --color-success: #437a22; --color-success-bg: #edf5e6;
+  --color-success-highlight: #d4dfcc;
+  --color-warning: #964219; --color-warning-bg: #fdf0e8;
+  --color-warning-highlight: #ddcfc6;
+  --color-error: #a12c7b; --color-error-bg: #faedf5;
+  --color-error-highlight: #e0ced7;
+  --shadow-md: 0 4px 12px oklch(0.2 0.01 80 / 0.08);
+}
+*,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { -webkit-text-size-adjust: none; text-size-adjust: none; scroll-behavior: smooth; scroll-padding-top: 70px; }
+body { font-family: var(--font); font-size: var(--text-base); color: var(--color-text); background: var(--color-bg); min-height: 100dvh; line-height: 1.6; }
+button { cursor: pointer; background: none; border: none; font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 3px; border-radius: var(--radius-sm); }
+
+/* ===================== TOPBAR ===================== */
+.topbar {
+  position: sticky; top: 0; z-index: 100;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  padding: var(--space-3) var(--space-5);
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-4);
+}
+.topbar-left { display: flex; flex-direction: column; gap: 2px; }
+.topbar-title { font-size: var(--text-sm); font-weight: 700; color: var(--color-text); }
+.topbar-subtitle { font-size: var(--text-xs); color: var(--color-text-muted); }
+.topbar-right { display: flex; align-items: center; gap: var(--space-3); }
+.breadcrumb { font-size: var(--text-xs); color: var(--color-text-muted); display: flex; align-items: center; gap: 4px; }
+.breadcrumb a { color: var(--color-primary); text-decoration: none; }
+.breadcrumb a:hover { text-decoration: underline; }
+.breadcrumb-sep { color: var(--color-text-faint); }
+.theme-btn { width: 32px; height: 32px; border-radius: var(--radius-full); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); transition: all var(--transition); }
+.theme-btn:hover { background: var(--color-surface-offset); color: var(--color-text); }
+.reset-btn { font-size: var(--text-xs); padding: 5px 12px; border: 1px solid var(--color-border); border-radius: var(--radius-full); color: var(--color-text-muted); transition: all var(--transition); }
+.reset-btn:hover { border-color: var(--color-error); color: var(--color-error); }
+
+/* ===================== MAIN LAYOUT ===================== */
+.main { max-width: 760px; margin: 0 auto; padding: var(--space-6) var(--space-5) var(--space-10); }
+
+/* ===================== MODE TOGGLE ===================== */
+.mode-toggle-wrap {
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: var(--space-6);
+}
+.mode-toggle {
+  display: flex; background: var(--color-surface); border: 1px solid var(--color-border);
+  border-radius: var(--radius-full); padding: 3px; gap: 2px;
+}
+.mode-btn {
+  padding: 7px 20px; border-radius: var(--radius-full);
+  font-size: var(--text-sm); font-weight: 500; color: var(--color-text-muted);
+  transition: all var(--transition); white-space: nowrap;
+}
+.mode-btn.active {
+  background: var(--color-primary); color: #fff;
+  box-shadow: 0 1px 4px oklch(0 0 0 / 0.3);
+}
+
+/* ===================== DECISION FIELD ===================== */
+.decision-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-6);
+  margin-bottom: var(--space-5);
+}
+.decision-card label {
+  display: block; font-size: var(--text-sm); font-weight: 600;
+  color: var(--color-text); margin-bottom: var(--space-2);
+}
+.decision-card .field-hint {
+  font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: var(--space-3);
+}
+.decision-input {
+  width: 100%; padding: 10px 14px;
+  background: var(--color-surface-2); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); color: var(--color-text);
+  font: inherit; font-size: var(--text-sm); resize: vertical;
+  transition: border-color var(--transition);
+}
+.decision-input:focus { outline: none; border-color: var(--color-primary); }
+.decision-input::placeholder { color: var(--color-text-faint); }
+
+/* ===================== DOMAIN CARDS ===================== */
+.domain-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-6);
+  margin-bottom: var(--space-4);
+}
+.domain-header { margin-bottom: var(--space-4); }
+.domain-number {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 24px; height: 24px; border-radius: var(--radius-full);
+  background: var(--color-primary-bg); color: var(--color-primary);
+  font-size: var(--text-xs); font-weight: 700; margin-right: var(--space-2);
+  vertical-align: middle;
+}
+.domain-title { font-size: var(--text-base); font-weight: 700; color: var(--color-text); }
+.domain-desc { font-size: var(--text-xs); color: var(--color-text-muted); margin-top: 4px; line-height: 1.5; }
+
+/* Prompts */
+.prompts-box {
+  background: var(--color-primary-bg); border: 1px solid var(--color-primary-highlight);
+  border-radius: var(--radius-lg); padding: var(--space-4); margin-bottom: var(--space-4);
+}
+.prompts-label { font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--color-primary); margin-bottom: var(--space-2); }
+.prompt-item { font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: 6px; padding-left: var(--space-4); position: relative; line-height: 1.5; }
+.prompt-item::before { content: '"'; position: absolute; left: 0; color: var(--color-primary); font-weight: 700; }
+
+/* Sub-items (detailed mode) */
+.subitem { margin-bottom: var(--space-5); }
+.subitem:last-child { margin-bottom: 0; }
+.subitem-label { font-size: var(--text-sm); font-weight: 600; color: var(--color-text); margin-bottom: var(--space-2); }
+
+/* Rating buttons */
+.rating-group { display: flex; gap: var(--space-2); margin-bottom: var(--space-3); }
+.rating-btn {
+  flex: 1; padding: 10px var(--space-2); border: 2px solid var(--color-border);
+  border-radius: var(--radius-md); text-align: center; cursor: pointer;
+  transition: all var(--transition); background: var(--color-bg);
+  min-height: 44px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.rating-btn:hover { border-color: var(--color-primary); background: var(--color-primary-bg); }
+.rating-btn.selected { border-color: var(--color-primary); background: var(--color-primary-bg); box-shadow: 0 0 0 3px var(--color-primary-highlight); }
+.rating-btn .rb-score { font-size: var(--text-lg); font-weight: 700; color: var(--color-primary); line-height: 1; }
+.rating-btn .rb-label { font-size: 0.68rem; color: var(--color-text-muted); margin-top: 3px; line-height: 1.2; text-align: center; }
+.rating-btn.selected .rb-label { color: var(--color-primary); }
+
+/* Notes */
+.notes-label { font-size: var(--text-xs); font-weight: 600; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: var(--space-2); }
+.notes-input {
+  width: 100%; padding: 10px 14px; min-height: 72px;
+  background: var(--color-surface-2); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); color: var(--color-text);
+  font: inherit; font-size: var(--text-sm); resize: vertical;
+  transition: border-color var(--transition);
+}
+.notes-input:focus { outline: none; border-color: var(--color-primary); }
+.notes-input::placeholder { color: var(--color-text-faint); }
+
+/* Domain score badge */
+.domain-score-row { display: flex; align-items: center; justify-content: flex-end; margin-top: var(--space-3); gap: var(--space-2); }
+.domain-score-badge {
+  font-size: var(--text-xs); font-weight: 700;
+  padding: 3px 10px; border-radius: var(--radius-full);
+  background: var(--color-surface-offset); color: var(--color-text-muted);
+  transition: all var(--transition);
+}
+.domain-score-badge.full { background: var(--color-success-highlight); color: var(--color-success); }
+.domain-score-badge.partial { background: var(--color-warning-highlight); color: var(--color-warning); }
+.domain-score-badge.absent { background: var(--color-error-highlight); color: var(--color-error); }
+
+/* ===================== SCORE PANEL ===================== */
+.score-panel {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-5) var(--space-6);
+  margin-top: var(--space-6);
+}
+.score-panel-title { font-size: var(--text-sm); font-weight: 700; color: var(--color-text); margin-bottom: var(--space-4); }
+.score-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: var(--space-3); margin-bottom: var(--space-4); }
+.score-cell { text-align: center; }
+.score-cell-label { font-size: var(--text-xs); color: var(--color-text-muted); margin-bottom: 4px; }
+.score-cell-value { font-size: var(--text-lg); font-weight: 700; color: var(--color-primary); }
+.score-total-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: var(--space-3); border-top: 1px solid var(--color-border);
+  margin-bottom: var(--space-4);
+}
+.score-total-label { font-size: var(--text-sm); font-weight: 600; color: var(--color-text); }
+.score-total-value { font-size: var(--text-xl); font-weight: 700; color: var(--color-primary); }
+
+/* Interpretation */
+.interp-box {
+  border-radius: var(--radius-lg); padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface-offset);
+}
+.interp-box.present { background: var(--color-success-bg); border-color: var(--color-success-highlight); }
+.interp-box.questionable { background: var(--color-warning-bg); border-color: var(--color-warning-highlight); }
+.interp-box.absent { background: var(--color-error-bg); border-color: var(--color-error-highlight); }
+.interp-label { font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .07em; margin-bottom: 4px; }
+.interp-box.present .interp-label { color: var(--color-success); }
+.interp-box.questionable .interp-label { color: var(--color-warning); }
+.interp-box.absent .interp-label { color: var(--color-error); }
+.interp-title { font-size: var(--text-base); font-weight: 700; color: var(--color-text); margin-bottom: 4px; }
+.interp-desc { font-size: var(--text-xs); color: var(--color-text-muted); line-height: 1.5; }
+
+/* Ranges table */
+.ranges-wrap { margin-bottom: var(--space-4); }
+.ranges-title { font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--color-text-muted); margin-bottom: var(--space-2); }
+.ranges-table { width: 100%; border-collapse: collapse; font-size: var(--text-xs); }
+.ranges-table th { text-align: left; padding: 5px 10px; color: var(--color-text-muted); border-bottom: 1px solid var(--color-border); font-weight: 600; }
+.ranges-table td { padding: 6px 10px; border-bottom: 1px solid var(--color-border); color: var(--color-text); }
+.ranges-table tr:last-child td { border-bottom: none; }
+.range-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+.range-dot.present { background: var(--color-success); }
+.range-dot.questionable { background: var(--color-warning); }
+.range-dot.absent { background: var(--color-error); }
+
+.caveat { font-size: var(--text-xs); color: var(--color-text-faint); line-height: 1.5; padding: var(--space-3) var(--space-4); background: var(--color-surface-2); border-radius: var(--radius-md); border: 1px solid var(--color-border); margin-bottom: var(--space-5); }
+
+/* Capacity impression override */
+.impression-wrap { margin-bottom: var(--space-5); }
+.impression-label { font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--color-text-muted); margin-bottom: var(--space-2); }
+.impression-btns { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.impression-btn {
+  padding: 8px 18px; border: 2px solid var(--color-border);
+  border-radius: var(--radius-full); font-size: var(--text-sm); font-weight: 600;
+  color: var(--color-text-muted); cursor: pointer; transition: all var(--transition);
+  background: var(--color-bg);
+}
+.impression-btn:hover { border-color: var(--color-primary); color: var(--color-text); }
+.impression-btn.active-present { border-color: var(--color-success); background: var(--color-success-bg); color: var(--color-success); }
+.impression-btn.active-questionable { border-color: var(--color-warning); background: var(--color-warning-bg); color: var(--color-warning); }
+.impression-btn.active-absent { border-color: var(--color-error); background: var(--color-error-bg); color: var(--color-error); }
+
+/* Generated note */
+.note-wrap { margin-top: var(--space-2); }
+.note-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--space-2); }
+.note-label { font-size: var(--text-xs); font-weight: 700; text-transform: uppercase; letter-spacing: .07em; color: var(--color-primary); }
+.copy-btn {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: transparent; border: 1px solid var(--color-border);
+  border-radius: 8px; padding: 5px 12px; font-size: var(--text-xs);
+  color: var(--color-text-muted); cursor: pointer; transition: all var(--transition);
+}
+.copy-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.note-box {
+  background: var(--color-surface-2); border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); padding: var(--space-4);
+  font-size: var(--text-sm); color: var(--color-text);
+  white-space: pre-wrap; line-height: 1.7; min-height: 100px;
+}
+
+/* Print / PDF buttons */
+.action-row { display: flex; gap: var(--space-3); flex-wrap: wrap; margin-top: var(--space-4); }
+.btn-action {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; border: 1px solid var(--color-border);
+  border-radius: var(--radius-md); padding: 8px 16px;
+  font-size: var(--text-sm); font-weight: 500;
+  color: var(--color-text-muted); cursor: pointer; transition: all var(--transition);
+}
+.btn-action:hover:not(:disabled) { border-color: var(--color-primary); color: var(--color-primary); }
+.btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ===================== FEEDBACK ===================== */
+.feedback-box { margin: 2rem auto 1.5rem; max-width: 640px; background: var(--color-surface-2); border: 1px solid var(--color-border); border-radius: 12px; padding: 1.25rem 1.5rem; }
+.feedback-box h2 { font-size: 1.05rem; font-weight: 600; color: var(--color-primary); margin: 0 0 1rem; }
+.feedback-form { display: flex; flex-direction: column; gap: .75rem; }
+.feedback-form input, .feedback-form textarea { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 8px; padding: .6rem .85rem; font-size: .9rem; color: var(--color-text); font-family: inherit; }
+.feedback-form textarea { min-height: 80px; resize: vertical; }
+.feedback-submit { align-self: flex-start; background: var(--color-primary); color: #fff; border: none; border-radius: 8px; padding: .5rem 1.25rem; font-size: .9rem; font-weight: 600; cursor: pointer; transition: background .15s; }
+.feedback-submit:hover { background: var(--color-primary-hover); }
+.feedback-success { display: none; margin-top: .75rem; color: var(--color-primary); font-size: .9rem; font-weight: 500; }
+
+/* ===================== PRINT ===================== */
+@media print {
+  .topbar, .mode-toggle-wrap, .action-row, .feedback-box,
+  .copy-btn, .reset-btn, .theme-btn, .prompts-box,
+  .rating-group, .notes-input, .impression-btns { display: none !important; }
+  body { background: #fff; color: #000; font-size: 11pt; }
+  .domain-card, .score-panel, .decision-card { border: 1px solid #ccc; break-inside: avoid; margin-bottom: 12pt; }
+  .note-box { border: 1px solid #ccc; background: #f9f9f9; }
+}
+
+@media (max-width: 600px) {
+  .main { padding: var(--space-4) var(--space-4) var(--space-10); }
+  .score-grid { grid-template-columns: repeat(2, 1fr); }
+  .domain-card, .score-panel, .decision-card { padding: var(--space-4); }
+  .mode-btn { padding: 7px 14px; font-size: var(--text-xs); }
+}
+</style>
+</head>
+<body>
+
+<!-- ── Topbar ── -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-title">Decisional Capacity Assessment</div>
+    <div class="breadcrumb">
+      <a href="index.html">Adult Tools</a>
+      <span class="breadcrumb-sep">›</span>
+      <span>Capacity</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <button class="reset-btn" onclick="resetAll()">Reset</button>
+    <button class="theme-btn" id="themeBtn" aria-label="Toggle theme"></button>
+  </div>
+</div>
+
+<!-- ── Main ── -->
+<div class="main">
+
+  <!-- Mode toggle -->
+  <div class="mode-toggle-wrap">
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btnSimple" onclick="setMode('simple')">Simple</button>
+      <button class="mode-btn" id="btnDetailed" onclick="setMode('detailed')">Detailed (MacCAT-T)</button>
+    </div>
+  </div>
+
+  <!-- Decision being evaluated -->
+  <div class="decision-card">
+    <label for="decisionInput">Decision Being Evaluated</label>
+    <div class="field-hint">Describe the specific medical or treatment decision under assessment.</div>
+    <textarea class="decision-input" id="decisionInput" rows="2"
+      placeholder="e.g., Consent to initiation of buprenorphine/naloxone for opioid use disorder"
+      oninput="generateNote()"></textarea>
+  </div>
+
+  <!-- Domain cards injected here -->
+  <div id="domainsContainer"></div>
+
+  <!-- Score panel -->
+  <div class="score-panel" id="scorePanel">
+    <div class="score-panel-title">Assessment Summary</div>
+
+    <div class="score-grid" id="scoreGrid"></div>
+
+    <div class="score-total-row">
+      <div class="score-total-label">Total Score</div>
+      <div class="score-total-value" id="totalScoreDisplay">— / —</div>
+    </div>
+
+    <!-- Interpretation ranges -->
+    <div class="ranges-wrap" id="rangesWrap"></div>
+
+    <div class="caveat" id="caveatBox"></div>
+
+    <!-- Capacity impression -->
+    <div class="impression-wrap">
+      <div class="impression-label">Capacity Impression <span style="font-weight:400;text-transform:none;letter-spacing:0">(auto-suggested — override as needed)</span></div>
+      <div class="impression-btns">
+        <button class="impression-btn" id="impPresent" onclick="setImpression('present')">Capacity Present</button>
+        <button class="impression-btn" id="impQuestionable" onclick="setImpression('questionable')">Capacity Questionable</button>
+        <button class="impression-btn" id="impAbsent" onclick="setImpression('absent')">Capacity Absent</button>
+      </div>
+    </div>
+
+    <!-- Interpretation box -->
+    <div class="interp-box" id="interpBox" style="display:none"></div>
+
+    <!-- Generated note -->
+    <div class="note-wrap">
+      <div class="note-header">
+        <div class="note-label">Generated Clinical Note</div>
+        <button class="copy-btn" onclick="copyNote()">
+          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Copy Note
+        </button>
+      </div>
+      <div class="note-box" id="generatedNote">(Complete the assessment above to generate a clinical note.)</div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn-action" id="btnPrint" onclick="window.print()" disabled>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print
+      </button>
+      <button class="btn-action" id="btnPDF" onclick="savePDF()" disabled>
+        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        Save as PDF
+      </button>
+    </div>
+  </div>
+
+</div><!-- /main -->
+
+<!-- ── Feedback Card ── -->
+<div class="feedback-box">
+  <h2>Suggestions &amp; Feedback</h2>
+  <form class="feedback-form" onsubmit="submitFeedback(event)">
+    <input type="hidden" name="_subject" value="Feedback: Decisional Capacity Tool">
+    <input type="hidden" name="_template" value="table">
+    <input type="hidden" name="_captcha" value="false">
+    <input type="text" name="name" placeholder="Your Name" required>
+    <textarea name="comment" placeholder="Comment or suggestion…" required></textarea>
+    <button type="submit" class="feedback-submit">Submit</button>
+  </form>
+  <div class="feedback-success" id="feedbackSuccess">Thank you — feedback received.</div>
+</div>
+
+<script>
+// ===================== DATA =====================
+
+var MODE = 'simple'; // 'simple' | 'detailed'
+var _impression = null; // null | 'present' | 'questionable' | 'absent'
+
+// Simple mode: 1 rating per domain, max score = 8
+var SIMPLE_DOMAINS = [
+  {
+    id: 'understanding',
+    title: 'Understanding',
+    number: 1,
+    desc: 'Patient understands the disclosed information about their condition, proposed treatment, alternatives, and associated risks and benefits.',
+    prompts: [
+      'Can you tell me in your own words what your diagnosis is?',
+      'What is the treatment I am recommending, and what would it involve?',
+      'What are the risks and benefits of this treatment that we discussed?',
+      'What happens if you choose not to receive this treatment?'
+    ],
+    anchors: ['No meaningful understanding demonstrated', 'Partial or inconsistent understanding; gaps in key information', 'Adequate understanding of diagnosis, treatment, risks, and alternatives']
+  },
+  {
+    id: 'appreciation',
+    title: 'Appreciation',
+    number: 2,
+    desc: 'Patient appreciates that the information applies to their own situation — not just in the abstract, but as it pertains to them personally.',
+    prompts: [
+      'Do you believe you have this condition?',
+      'Do you believe this treatment could help you specifically?',
+      'What do you think will happen to you if you accept this treatment? If you refuse?'
+    ],
+    anchors: ['Denies having the condition or denies the treatment could affect them; unable to connect information to personal situation', 'Partial acknowledgment; minimizes relevance to own situation or shows inconsistent insight', 'Clearly understands and acknowledges the personal relevance of the diagnosis and proposed treatment']
+  },
+  {
+    id: 'reasoning',
+    title: 'Reasoning',
+    number: 3,
+    desc: 'Patient can weigh options against each other, think through consequences, and engage in a rational decision-making process.',
+    prompts: [
+      'How did you arrive at your decision?',
+      'What factors are most important to you in making this decision?',
+      'What do you see as the advantages and disadvantages of each option?',
+      'How does your decision fit with your overall goals for your health?'
+    ],
+    anchors: ['Unable to compare options, weigh consequences, or provide any rational basis for the decision', 'Some reasoning present but incomplete; illogical gaps or inability to weigh key factors', 'Demonstrates sequential, logical reasoning; able to compare options and articulate a basis for the decision']
+  },
+  {
+    id: 'choice',
+    title: 'Expressing a Choice',
+    number: 4,
+    desc: 'Patient can communicate a clear, consistent decision when asked.',
+    prompts: [
+      'Have you made a decision about this treatment?',
+      'What is your decision?',
+      'Are you able to tell me again what you have decided?'
+    ],
+    anchors: ['Unable to state a decision, or decision changes incoherently within the interview', 'States a decision but is inconsistent or requires excessive prompting', 'Clearly and consistently communicates a decision throughout the interview']
+  }
+];
+
+// Detailed mode: sub-items per domain (MacCAT-T structure)
+var DETAILED_DOMAINS = [
+  {
+    id: 'understanding',
+    title: 'Understanding',
+    number: 1,
+    desc: 'Rated across three disclosure components: diagnosis, treatment, and risks/benefits.',
+    maxScore: 6,
+    subitems: [
+      {
+        id: 'u1', label: 'Understanding of Disorder',
+        prompts: ['Can you tell me in your own words what condition or problem you have?', 'What do you understand about your diagnosis?'],
+        anchors: ['No understanding of disorder', 'Partial understanding; missing key elements', 'Adequate understanding of disorder']
+      },
+      {
+        id: 'u2', label: 'Understanding of Treatment',
+        prompts: ['What is the treatment being recommended?', 'What would it involve for you?'],
+        anchors: ['No understanding of treatment', 'Partial understanding of treatment', 'Adequate understanding of treatment']
+      },
+      {
+        id: 'u3', label: 'Understanding of Risks/Benefits and Alternatives',
+        prompts: ['What are the risks and benefits of this treatment?', 'What other options are available to you?', 'What happens if you choose not to have any treatment?'],
+        anchors: ['No understanding of risks, benefits, or alternatives', 'Partial understanding; cannot articulate key risks or alternatives', 'Adequate understanding of risks, benefits, and at least one alternative']
+      }
+    ]
+  },
+  {
+    id: 'appreciation',
+    title: 'Appreciation',
+    number: 2,
+    desc: 'Rated across two components: appreciation of the disorder and appreciation of the treatment effect.',
+    maxScore: 4,
+    subitems: [
+      {
+        id: 'a1', label: 'Appreciation of Disorder',
+        prompts: ['Do you believe you have this condition?', 'Why do you think I have recommended this treatment?'],
+        anchors: ['Denies having the disorder entirely', 'Acknowledges disorder but minimizes its relevance to their situation', 'Clearly acknowledges disorder and its personal significance']
+      },
+      {
+        id: 'a2', label: 'Appreciation of Treatment',
+        prompts: ['Do you believe this treatment could help you?', 'What do you think will happen to you if you accept the treatment? If you refuse?'],
+        anchors: ['Denies treatment could affect them; reasoning clearly distorted', 'Partial acknowledgment; inconsistent belief in treatment relevance', 'Clearly acknowledges potential effects of treatment on their own situation']
+      }
+    ]
+  },
+  {
+    id: 'reasoning',
+    title: 'Reasoning',
+    number: 3,
+    desc: 'Rated across three reasoning components: consequential thinking, comparative thinking, and generating consequences.',
+    maxScore: 6,
+    subitems: [
+      {
+        id: 'r1', label: 'Consequential Thinking',
+        prompts: ['What do you think will happen as a result of your decision?', 'How will this decision affect your daily life?'],
+        anchors: ['Unable to identify any consequences of the decision', 'Identifies some consequences but in a limited or illogical way', 'Logically and consistently identifies meaningful consequences']
+      },
+      {
+        id: 'r2', label: 'Comparative Thinking',
+        prompts: ['How did you compare your options when making this decision?', 'Why did you choose this option over the others?'],
+        anchors: ['Unable to compare options at all', 'Makes some comparison but missing key distinctions', 'Demonstrates clear comparison between options with logical differentiation']
+      },
+      {
+        id: 'r3', label: 'Generating Consequences',
+        prompts: ['How does this decision fit with your values and long-term goals?', 'What factors were most important to you?'],
+        anchors: ['Cannot generate relevant reasons or basis for decision', 'Generates some reasons but reasoning is incomplete or tangential', 'Generates coherent, relevant reasons consistent with their stated values and goals']
+      }
+    ]
+  },
+  {
+    id: 'choice',
+    title: 'Expressing a Choice',
+    number: 4,
+    desc: 'A single item — whether the patient can consistently state and maintain a decision.',
+    maxScore: 2,
+    subitems: [
+      {
+        id: 'c1', label: 'Ability to Express and Maintain a Choice',
+        prompts: ['Have you made a decision about this treatment?', 'What is your decision?', 'Can you tell me your decision again?'],
+        anchors: ['Unable to state a decision, or decision changes incoherently without new information', 'States a decision inconsistently or requires repeated prompting', 'Clearly and consistently states the same decision throughout the interview']
+      }
+    ]
+  }
+];
+
+// Scores storage
+// Simple: scores[domainId] = 0|1|2|null
+// Detailed: scores[subitemId] = 0|1|2|null
+var scores = {};
+
+// ===================== MODE =====================
+function setMode(mode) {
+  MODE = mode;
+  document.getElementById('btnSimple').classList.toggle('active', mode === 'simple');
+  document.getElementById('btnDetailed').classList.toggle('active', mode === 'detailed');
+  // Clear ratings but keep notes and decision text
+  scores = {};
+  renderDomains();
+  updateScore();
+  generateNote();
+}
+
+// ===================== RENDER =====================
+function renderDomains() {
+  var container = document.getElementById('domainsContainer');
+  container.innerHTML = '';
+
+  var domains = MODE === 'simple' ? SIMPLE_DOMAINS : DETAILED_DOMAINS;
+
+  domains.forEach(function(d) {
+    var card = document.createElement('div');
+    card.className = 'domain-card';
+    card.id = 'domain-' + d.id;
+
+    if (MODE === 'simple') {
+      card.innerHTML = renderSimpleDomain(d);
+    } else {
+      card.innerHTML = renderDetailedDomain(d);
+    }
+    container.appendChild(card);
+  });
+}
+
+function renderSimpleDomain(d) {
+  return '<div class="domain-header">' +
+    '<span class="domain-number">' + d.number + '</span>' +
+    '<span class="domain-title">' + d.title + '</span>' +
+    '<div class="domain-desc">' + d.desc + '</div>' +
+    '</div>' +
+    '<div class="prompts-box">' +
+    '<div class="prompts-label">Suggested Prompts</div>' +
+    d.prompts.map(function(p) { return '<div class="prompt-item">' + p + '</div>'; }).join('') +
+    '</div>' +
+    '<div class="rating-group">' +
+    [0,1,2].map(function(v) {
+      return '<button class="rating-btn" id="rb-' + d.id + '-' + v + '" onclick="setScore(\'' + d.id + '\',' + v + ')">' +
+        '<span class="rb-score">' + v + '</span>' +
+        '<span class="rb-label">' + d.anchors[v] + '</span>' +
+        '</button>';
+    }).join('') +
+    '</div>' +
+    '<div class="notes-label">Clinical Observations / Notes</div>' +
+    '<textarea class="notes-input" id="notes-' + d.id + '" placeholder="Document specific responses, observations, or reasoning here…" oninput="generateNote()"></textarea>' +
+    '<div class="domain-score-row">' +
+    '<div class="domain-score-badge" id="badge-' + d.id + '">— / 2</div>' +
+    '</div>';
+}
+
+function renderDetailedDomain(d) {
+  var html = '<div class="domain-header">' +
+    '<span class="domain-number">' + d.number + '</span>' +
+    '<span class="domain-title">' + d.title + '</span>' +
+    '<div class="domain-desc">' + d.desc + '</div>' +
+    '</div>';
+
+  d.subitems.forEach(function(si) {
+    html += '<div class="subitem">' +
+      '<div class="subitem-label">' + si.label + '</div>' +
+      '<div class="prompts-box">' +
+      '<div class="prompts-label">Suggested Prompts</div>' +
+      si.prompts.map(function(p) { return '<div class="prompt-item">' + p + '</div>'; }).join('') +
+      '</div>' +
+      '<div class="rating-group">' +
+      [0,1,2].map(function(v) {
+        return '<button class="rating-btn" id="rb-' + si.id + '-' + v + '" onclick="setScore(\'' + si.id + '\',' + v + ')">' +
+          '<span class="rb-score">' + v + '</span>' +
+          '<span class="rb-label">' + si.anchors[v] + '</span>' +
+          '</button>';
+      }).join('') +
+      '</div>' +
+      '</div>';
+  });
+
+  html += '<div class="notes-label">Clinical Observations / Notes</div>' +
+    '<textarea class="notes-input" id="notes-' + d.id + '" placeholder="Document specific responses, observations, or reasoning here…" oninput="generateNote()"></textarea>' +
+    '<div class="domain-score-row">' +
+    '<div class="domain-score-badge" id="badge-' + d.id + '">— / ' + d.maxScore + '</div>' +
+    '</div>';
+
+  return html;
+}
+
+// ===================== SCORING =====================
+function setScore(itemId, val) {
+  scores[itemId] = val;
+  // Update button states
+  [0,1,2].forEach(function(v) {
+    var btn = document.getElementById('rb-' + itemId + '-' + v);
+    if (btn) btn.classList.toggle('selected', v === val);
+  });
+  updateScore();
+  generateNote();
+}
+
+function getDomainScore(d) {
+  if (MODE === 'simple') {
+    var s = scores[d.id];
+    return s === undefined || s === null ? null : s;
+  } else {
+    var total = 0, allAnswered = true;
+    d.subitems.forEach(function(si) {
+      var s = scores[si.id];
+      if (s === undefined || s === null) { allAnswered = false; }
+      else total += s;
+    });
+    return allAnswered ? total : null;
+  }
+}
+
+function getMaxDomainScore(d) {
+  return MODE === 'simple' ? 2 : d.maxScore;
+}
+
+function updateScore() {
+  var domains = MODE === 'simple' ? SIMPLE_DOMAINS : DETAILED_DOMAINS;
+  var maxTotal = MODE === 'simple' ? 8 : 20;
+  var runningTotal = 0;
+  var allAnswered = true;
+
+  // Score grid
+  var gridHtml = '';
+  domains.forEach(function(d) {
+    var ds = getDomainScore(d);
+    var max = getMaxDomainScore(d);
+    var display = ds === null ? '—' : ds;
+    gridHtml += '<div class="score-cell">' +
+      '<div class="score-cell-label">' + d.title + '</div>' +
+      '<div class="score-cell-value">' + display + '<span style="font-size:var(--text-xs);color:var(--color-text-muted);font-weight:400"> /' + max + '</span></div>' +
+      '</div>';
+
+    // Update badge
+    var badge = document.getElementById('badge-' + d.id);
+    if (badge) {
+      if (ds === null) {
+        badge.textContent = '— / ' + max;
+        badge.className = 'domain-score-badge';
+      } else {
+        badge.textContent = ds + ' / ' + max;
+        var pct = ds / max;
+        badge.className = 'domain-score-badge ' + (pct >= 0.75 ? 'full' : pct >= 0.4 ? 'partial' : 'absent');
+      }
+    }
+
+    if (ds === null) allAnswered = false;
+    else runningTotal += ds;
+  });
+
+  document.getElementById('scoreGrid').innerHTML = gridHtml;
+  document.getElementById('totalScoreDisplay').textContent = allAnswered ? (runningTotal + ' / ' + maxTotal) : '— / ' + maxTotal;
+
+  // Ranges
+  renderRanges(runningTotal, maxTotal, allAnswered);
+
+  // Auto-suggest impression if not manually set
+  if (allAnswered && _impression === null) {
+    var suggested = suggestImpression(runningTotal, maxTotal);
+    highlightImpression(suggested, true);
+  }
+
+  // Print/PDF buttons
+  var complete = allAnswered;
+  document.getElementById('btnPrint').disabled = !complete;
+  document.getElementById('btnPDF').disabled = !complete;
+}
+
+function suggestImpression(total, max) {
+  var pct = total / max;
+  if (pct >= 0.75) return 'present';
+  if (pct >= 0.4) return 'questionable';
+  return 'absent';
+}
+
+function renderRanges(total, max, allAnswered) {
+  var rangesWrap = document.getElementById('rangesWrap');
+  var caveatBox = document.getElementById('caveatBox');
+
+  if (MODE === 'simple') {
+    rangesWrap.innerHTML = '<div class="ranges-title">Score Interpretation (Simple Mode)</div>' +
+      '<table class="ranges-table">' +
+      '<tr><th>Score</th><th>Interpretation</th></tr>' +
+      '<tr><td><span class="range-dot present"></span>6 – 8</td><td>Capacity likely present</td></tr>' +
+      '<tr><td><span class="range-dot questionable"></span>3 – 5</td><td>Capacity questionable — further evaluation warranted</td></tr>' +
+      '<tr><td><span class="range-dot absent"></span>0 – 2</td><td>Capacity likely absent</td></tr>' +
+      '</table>';
+    caveatBox.textContent = 'Score ranges are based on proportional application of the Appelbaum & Grisso four-ability framework. Clinical judgment supersedes score thresholds. This tool is a documentation aid and does not constitute a formal legal competency determination.';
+  } else {
+    rangesWrap.innerHTML = '<div class="ranges-title">Score Interpretation (MacCAT-T)</div>' +
+      '<table class="ranges-table">' +
+      '<tr><th>Domain</th><th>Max</th><th>Adequate Range</th></tr>' +
+      '<tr><td>Understanding</td><td>6</td><td>≥ 4</td></tr>' +
+      '<tr><td>Appreciation</td><td>4</td><td>≥ 3</td></tr>' +
+      '<tr><td>Reasoning</td><td>6</td><td>≥ 4</td></tr>' +
+      '<tr><td>Expressing a Choice</td><td>2</td><td>2</td></tr>' +
+      '<tr><td><strong>Total</strong></td><td><strong>20</strong></td><td><strong>≥ 15 suggests capacity present</strong></td></tr>' +
+      '</table>';
+    caveatBox.textContent = 'MacCAT-T cutoffs are based on published normative data (Grisso & Appelbaum, 1998). A score below threshold does not automatically indicate incapacity — domain-specific deficits and clinical context must be weighed. Clinical judgment supersedes score thresholds. This tool is a documentation aid and does not constitute a formal legal competency determination.';
+  }
+}
+
+// ===================== IMPRESSION =====================
+function setImpression(val) {
+  _impression = val;
+  highlightImpression(val, false);
+  generateNote();
+}
+
+function highlightImpression(val, isAuto) {
+  ['present','questionable','absent'].forEach(function(v) {
+    var btn = document.getElementById('imp' + v.charAt(0).toUpperCase() + v.slice(1));
+    if (!btn) return;
+    btn.className = 'impression-btn';
+    if (v === val) btn.classList.add('active-' + v);
+  });
+
+  var box = document.getElementById('interpBox');
+  if (!val) { box.style.display = 'none'; return; }
+  box.style.display = '';
+  box.className = 'interp-box ' + val;
+
+  var titles = {
+    present: 'Capacity Present',
+    questionable: 'Capacity Questionable',
+    absent: 'Capacity Absent'
+  };
+  var descs = {
+    present: 'The patient demonstrates sufficient ability across all four domains to make an informed decision regarding the proposed treatment. Consent obtained is clinically valid.',
+    questionable: 'Performance across one or more domains is marginal or inconsistent. Further evaluation, re-assessment after intervention, or ethics consultation may be warranted before proceeding.',
+    absent: 'The patient does not demonstrate sufficient decision-making ability across one or more critical domains. Surrogate decision-making, advance directives, or ethics consultation should be pursued.'
+  };
+  box.innerHTML = '<div class="interp-label">' + (isAuto ? 'Suggested — ' : '') + 'Capacity Impression</div>' +
+    '<div class="interp-title">' + titles[val] + '</div>' +
+    '<div class="interp-desc">' + descs[val] + '</div>';
+}
+
+// ===================== NOTE GENERATION =====================
+function generateNote() {
+  var decision = (document.getElementById('decisionInput').value || '').trim();
+  var domains = MODE === 'simple' ? SIMPLE_DOMAINS : DETAILED_DOMAINS;
+
+  var impression = _impression;
+  if (!impression) {
+    // Use suggested if all answered
+    var maxTotal = MODE === 'simple' ? 8 : 20;
+    var total = 0; var allAnswered = true;
+    domains.forEach(function(d) {
+      var ds = getDomainScore(d);
+      if (ds === null) allAnswered = false;
+      else total += ds;
+    });
+    if (allAnswered) impression = suggestImpression(total, maxTotal);
+  }
+
+  var impLabels = { present: 'Capacity Present', questionable: 'Capacity Questionable', absent: 'Capacity Absent' };
+  var lines = [];
+
+  lines.push('DECISIONAL CAPACITY ASSESSMENT');
+  lines.push('Framework: Appelbaum & Grisso Four-Ability Model' + (MODE === 'detailed' ? ' (MacCAT-T Structure)' : ' — Simple Mode'));
+  if (decision) lines.push('Decision Under Evaluation: ' + decision);
+  lines.push('');
+
+  // Domain paragraphs
+  domains.forEach(function(d) {
+    var notes = (document.getElementById('notes-' + d.id) || {}).value || '';
+    notes = notes.trim();
+    var ds = getDomainScore(d);
+    var max = getMaxDomainScore(d);
+    var scoreStr = ds !== null ? (' (Score: ' + ds + '/' + max + ')') : '';
+
+    var level = ds === null ? null : (ds / max >= 0.75 ? 'adequate' : ds / max >= 0.4 ? 'partial' : 'absent');
+    var levelMap = { adequate: 'adequate', partial: 'partial', absent: 'absent' };
+
+    var intro = {
+      understanding: {
+        adequate: 'Patient demonstrated adequate understanding of the disclosed information.',
+        partial:  'Patient demonstrated partial understanding of the disclosed information, with notable gaps.',
+        absent:   'Patient was unable to demonstrate meaningful understanding of the disclosed information.'
+      },
+      appreciation: {
+        adequate: 'Patient demonstrated adequate appreciation of the disorder and its personal relevance to their treatment decision.',
+        partial:  'Patient demonstrated only partial appreciation of the disorder or its personal relevance, with inconsistencies noted.',
+        absent:   'Patient was unable to demonstrate meaningful appreciation that the disclosed information applies to their own situation.'
+      },
+      reasoning: {
+        adequate: 'Patient demonstrated adequate reasoning ability, including comparison of options and articulation of a logical basis for their decision.',
+        partial:  'Patient demonstrated partial reasoning ability; gaps in comparative thinking or consequence generation were noted.',
+        absent:   'Patient was unable to demonstrate rational manipulation of the disclosed information in service of a decision.'
+      },
+      choice: {
+        adequate: 'Patient clearly and consistently expressed a choice throughout the interview.',
+        partial:  'Patient expressed a choice, though consistency was limited and prompting was required.',
+        absent:   'Patient was unable to consistently express or maintain a decision.'
+      }
+    };
+
+    var domainText = '';
+    if (level && intro[d.id] && intro[d.id][level]) {
+      domainText = intro[d.id][level];
+    } else {
+      domainText = d.title + ': not yet rated.';
+    }
+    if (notes) domainText += ' ' + notes;
+
+    lines.push(d.number + '. ' + d.title.toUpperCase() + scoreStr);
+    lines.push(domainText);
+    lines.push('');
+  });
+
+  // Impression
+  if (impression) {
+    lines.push('CAPACITY IMPRESSION: ' + impLabels[impression].toUpperCase());
+    var impSentences = {
+      present:      'Based on assessment across all four domains, the patient demonstrates adequate decisional capacity regarding the decision under evaluation' + (decision ? ' (' + decision + ')' : '') + '. Informed consent obtained is clinically valid.',
+      questionable: 'Based on assessment across all four domains, decisional capacity is questionable. Marginal or inconsistent performance was identified in one or more domains. Further evaluation, re-assessment following clinical intervention, or ethics consultation is recommended prior to proceeding.',
+      absent:       'Based on assessment across all four domains, the patient does not demonstrate sufficient decisional capacity regarding the decision under evaluation' + (decision ? ' (' + decision + ')' : '') + '. Surrogate decision-making, review of advance directives, and/or ethics consultation is recommended.'
+    };
+    lines.push(impSentences[impression]);
+    lines.push('');
+  }
+
+  lines.push('Note: This assessment is a clinical documentation aid based on the Appelbaum & Grisso framework and does not constitute a formal legal competency determination.');
+
+  document.getElementById('generatedNote').textContent = lines.join('\n');
+}
+
+// ===================== COPY NOTE =====================
+function copyNote() {
+  var text = document.getElementById('generatedNote').textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    var btn = document.querySelector('.copy-btn');
+    var orig = btn.innerHTML;
+    btn.innerHTML = '<svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Copied!';
+    setTimeout(function() { btn.innerHTML = orig; }, 2200);
+  }).catch(function() {
+    var box = document.getElementById('generatedNote');
+    var range = document.createRange();
+    range.selectNode(box);
+    window.getSelection().removeAllRanges();
+    window.getSelection().addRange(range);
+  });
+}
+
+// ===================== SAVE PDF =====================
+function savePDF() {
+  window.print();
+}
+
+// ===================== RESET =====================
+function resetAll() {
+  scores = {};
+  _impression = null;
+  document.getElementById('decisionInput').value = '';
+  renderDomains();
+  updateScore();
+  generateNote();
+  // Clear impression UI
+  ['present','questionable','absent'].forEach(function(v) {
+    var btn = document.getElementById('imp' + v.charAt(0).toUpperCase() + v.slice(1));
+    if (btn) btn.className = 'impression-btn';
+  });
+  document.getElementById('interpBox').style.display = 'none';
+  document.getElementById('btnPrint').disabled = true;
+  document.getElementById('btnPDF').disabled = true;
+}
+
+// ===================== THEME =====================
+(function() {
+  var r = document.documentElement;
+  var d = 'dark';
+  r.setAttribute('data-theme', d);
+  var btn = document.getElementById('themeBtn');
+  var moon = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  var sun  = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  if (btn) {
+    btn.innerHTML = sun;
+    btn.addEventListener('click', function() {
+      d = d === 'dark' ? 'light' : 'dark';
+      r.setAttribute('data-theme', d);
+      btn.innerHTML = d === 'dark' ? sun : moon;
+    });
+  }
+})();
+
+// ===================== FEEDBACK =====================
+function submitFeedback(e) {
+  e.preventDefault();
+  var form = e.target;
+  var data = new FormData(form);
+  fetch('https://formsubmit.co/ajax/troyfowlermd@gmail.com', {
+    method: 'POST',
+    headers: { 'Accept': 'application/json' },
+    body: data
+  }).then(function() {
+    form.reset();
+    var s = document.getElementById('feedbackSuccess');
+    if (s) { s.style.display = 'block'; setTimeout(function() { s.style.display = 'none'; }, 4000); }
+  }).catch(function() {});
+}
+
+// ===================== INIT =====================
+renderDomains();
+updateScore();
+generateNote();
+</script>
+
+</body>
+</html>
